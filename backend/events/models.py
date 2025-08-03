@@ -7,6 +7,7 @@ class Event(models.Model):
     code = models.CharField(max_length=10, unique=True, default=uuid.uuid4().hex[:10])
     title = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_events')
 
     def __str__(self):
         return f"{self.title} ({self.code})"

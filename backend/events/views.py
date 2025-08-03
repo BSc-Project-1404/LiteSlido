@@ -8,12 +8,32 @@ from .forms import PollForm, PollOptionForm
 from .models import PollOption
 from django.contrib.auth.decorators import login_required
 from .models import PollVote 
+from django.contrib.auth.forms import UserCreationForm
+from django.http import HttpResponseForbidden
 
 
+@login_required
 def event_list(request):
-    events = Event.objects.all()
-    return render(request, 'events/event_list.html', {'events': events})
+    # Show only events created by this user
+    my_events = Event.objects.filter(creator=request.user)
+    
+    # Handle join by code
+    join_error = None
+    if request.method == 'POST':
+        code = request.POST.get('event_code', '').strip()
+        try:
+            event = get_object_or_404(Event, code=code)
+            return redirect('event_detail', event_code=event.code)
+        except:
+            join_error = "Invalid event code."
 
+    return render(request, 'events/event_list.html', {
+        'my_events': my_events,
+        'join_error': join_error,
+    })
+
+
+@login_required
 def event_create(request):
     if request.method == 'POST':
         form = EventForm(request.POST)
@@ -25,10 +45,13 @@ def event_create(request):
     return render(request, 'events/event_create.html', {'form': form})
 
 
+@login_required
 def poll_list(request):
     polls = Poll.objects.all()
     return render(request, 'events/poll_list.html', {'polls': polls})
 
+
+@login_required
 def add_question(request, event_code):
     event = Event.objects.get(code=event_code)
     if request.method == 'POST':
@@ -44,17 +67,21 @@ def add_question(request, event_code):
 
 
 def add_poll(request, event_code):
-    event = Event.objects.get(code=event_code)
+    event = get_object_or_404(Event, code=event_code)
+
+    # Only the creator may add polls
+    if request.user != event.creator:
+        return HttpResponseForbidden("You are not allowed to add polls to this event.")
+
     if request.method == 'POST':
         poll_form = PollForm(request.POST)
-        num_options = int(request.POST.get('num_options', 0))  # Get the number of options dynamically
+        num_options = int(request.POST.get('num_options', 0))
 
         if poll_form.is_valid():
             poll = poll_form.save(commit=False)
-            poll.event = event  # Automatically link the poll to the event
+            poll.event = event
             poll.save()
 
-            # Now handle saving poll options (make sure to include the first option)
             for i in range(0, num_options + 1):
                 option_text = request.POST.get(f'option_{i}-text')
                 if option_text:
@@ -63,7 +90,7 @@ def add_poll(request, event_code):
             return redirect('event_detail', event_code=event.code)
     else:
         poll_form = PollForm()
-        num_options = 2  # Default to 2 options
+        num_options = 2
         option_forms = [PollOptionForm(prefix=f"option_{i}") for i in range(num_options)]
 
     return render(request, 'events/add_poll.html', {
@@ -74,6 +101,7 @@ def add_poll(request, event_code):
     })
 
 
+@login_required
 def event_detail(request, event_code):
     event = get_object_or_404(Event, code=event_code)
     questions = event.questions.all()  # Get all questions for the event
@@ -104,3 +132,42 @@ def vote_poll(request, event_code, poll_id):
         'options': options,
         'event_code': event_code,
     })
+
+@login_required
+def poll_detail(request, event_code, poll_id):
+    event = get_object_or_404(Event, code=event_code)
+    poll = get_object_or_404(Poll, id=poll_id, event=event)
+    options = poll.options.all()
+    user_has_voted = PollVote.objects.filter(user=request.user, poll_option__poll=poll).exists()
+
+    if request.method == 'POST' and not user_has_voted:
+        selected_option_id = request.POST.get('poll_option')
+        selected_option = get_object_or_404(PollOption, id=selected_option_id, poll=poll)
+        PollVote.objects.create(user=request.user, poll_option=selected_option)
+        return redirect('poll_detail', event_code=event_code, poll_id=poll_id)
+
+    # Build list of (option, vote_count)
+    option_votes_list = []
+    for option in options:
+        count = PollVote.objects.filter(poll_option=option).count()
+        option_votes_list.append((option, count))
+
+    return render(request, 'events/poll_detail.html', {
+        'event': event,
+        'poll': poll,
+        'user_has_voted': user_has_voted,
+        'option_votes_list': option_votes_list,
+    })
+
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')  # Redirect to login after registration
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'registration/register.html', {'form': form})
