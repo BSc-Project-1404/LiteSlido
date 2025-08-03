@@ -11,11 +11,13 @@ WORKDIR /app
 
 # Install dependencies
 COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+# Install watchdog for auto-reload
+RUN pip install watchdog
 
 # Copy project files
 COPY . .
 
-# Start with Gunicorn
-CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Start Django development server with auto-reload enabled
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ poll.question }}</title>
+  </head>
+  <body>
+    <h1>Vote for a Poll</h1>
+    <h2>{{ poll.question }}</h2>
+
+    <form method="POST">
+      {% csrf_token %} {% for option in options %}
+      <div>
+        <input
+          type="radio"
+          name="poll_option"
+          value="{{ option.id }}"
+          id="option_{{ option.id }}"
+          required
+        />
+        <label for="option_{{ option.id }}">{{ option.text }}</label>
+      </div>
+      {% endfor %}
+      <button type="submit">Submit Vote</button>
+    </form>
+
+    <a href="{% url 'event_detail' event_code %}">Back to Event</a>
+  </body>
+</html>

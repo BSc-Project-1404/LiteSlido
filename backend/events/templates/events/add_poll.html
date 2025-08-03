@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Add Poll to Event</title>
+    <style>
+      .option-form {
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Create a Poll for "{{ event.title }}"</h1>
+    <form method="POST" id="poll-form">
+      {% csrf_token %} {{ form.as_p }}
+
+      <h3>Poll Options</h3>
+      <div id="options-container">
+        {% for form in option_forms %}
+        <div class="option-form">
+          <!-- Display the custom label for each option -->
+          {{ form.as_p }}
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Add more options -->
+      <button type="button" id="add-option-button">+</button>
+
+      <input
+        type="hidden"
+        name="num_options"
+        id="num-options"
+        value="{{ num_options }}"
+      />
+
+      <button type="submit">Submit Poll</button>
+    </form>
+
+    <a href="{% url 'event_list' %}">Back to Event List</a>
+
+    <script>
+      // Default number of options
+      let numOptions = {{ num_options }};
+
+      // Function to add a new option form
+      document.getElementById("add-option-button").addEventListener("click", function() {
+          numOptions++;
+          // Create new option form dynamically
+          let newOptionForm = document.createElement("div");
+          newOptionForm.classList.add("option-form");
+          newOptionForm.innerHTML = `
+              <label for="id_option_${numOptions}-text">Option ${numOptions}:</label>
+              <input type="text" name="option_${numOptions}-text" required id="id_option_${numOptions}-text">
+          `;
+          // Append new option form to the container
+          document.getElementById("options-container").appendChild(newOptionForm);
+          // Update hidden num_options field to reflect the new number of options
+          document.getElementById("num-options").value = numOptions;
+      });
+    </script>
+  </body>
+</html>

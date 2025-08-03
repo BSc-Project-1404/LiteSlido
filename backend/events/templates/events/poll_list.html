@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Polls</title>
+  </head>
+  <body>
+    <h1>Polls</h1>
+    <ul>
+      {% for poll in polls %}
+      <li>{{ poll.question }} (Event: {{ poll.event.title }})</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
