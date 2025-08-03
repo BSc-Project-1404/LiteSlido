@@ -10,7 +10,14 @@ class EventForm(forms.ModelForm):
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ['event', 'text']
+        fields = ['text']   # Only include the question text
+        widgets = {
+            'text': forms.Textarea(attrs={
+                'class': 'w-full border rounded px-3 py-2 focus:outline-none focus:ring',
+                'rows': 3,
+                'placeholder': 'Your question...'
+            })
+        }
 
 # Form for creating a poll
 class PollForm(forms.ModelForm):

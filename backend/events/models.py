@@ -3,8 +3,12 @@ import uuid
 from django.contrib.auth.models import User
 
 
+def generate_event_code():
+    """Return a unique 10-character hexadecimal code."""
+    return uuid.uuid4().hex[:10]
+
 class Event(models.Model):
-    code = models.CharField(max_length=10, unique=True, default=uuid.uuid4().hex[:10])
+    code = models.CharField(max_length=10, unique=True, default=generate_event_code)
     title = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_events')
@@ -13,13 +17,15 @@ class Event(models.Model):
         return f"{self.title} ({self.code})"
 
 
+
 class Question(models.Model):
-    event = models.ForeignKey(Event, related_name='questions', on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='questions')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questions')
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Q: {self.text[:50]}"
+        return f"{self.author.username} @ {self.event.code}: {self.text[:20]}"
 
 
 class Poll(models.Model):

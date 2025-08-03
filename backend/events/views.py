@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from .models import PollVote 
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseForbidden
+from django.contrib.auth import login, authenticate
 
 
 @login_required
@@ -38,33 +39,34 @@ def event_create(request):
     if request.method == 'POST':
         form = EventForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('event_list')  # Redirect to event list page after saving
+            # Don’t save to DB yet—attach creator first
+            event = form.save(commit=False)
+            event.creator = request.user
+            event.save()
+            return redirect('event_list')
     else:
         form = EventForm()
     return render(request, 'events/event_create.html', {'form': form})
 
-
-@login_required
-def poll_list(request):
-    polls = Poll.objects.all()
-    return render(request, 'events/poll_list.html', {'polls': polls})
-
-
 @login_required
 def add_question(request, event_code):
-    event = Event.objects.get(code=event_code)
+    event = get_object_or_404(Event, code=event_code)
+
     if request.method == 'POST':
         form = QuestionForm(request.POST)
         if form.is_valid():
             question = form.save(commit=False)
             question.event = event
+            question.author = request.user      # ← Set the author here
             question.save()
-            return redirect('event_list')  # Redirect to event list after saving
+            return redirect('event_detail', event_code=event.code)
     else:
         form = QuestionForm()
-    return render(request, 'events/add_question.html', {'form': form, 'event': event})
 
+    return render(request, 'events/add_question.html', {
+        'form': form,
+        'event': event,
+    })
 
 def add_poll(request, event_code):
     event = get_object_or_404(Event, code=event_code)
@@ -165,8 +167,15 @@ def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('login')  # Redirect to login after registration
+            # Save user
+            user = form.save()
+            # Authenticate and log in the new user
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            if user:
+                login(request, user)
+                return redirect('event_list')
     else:
         form = UserCreationForm()
 

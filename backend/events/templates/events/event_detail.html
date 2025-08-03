@@ -1,41 +1,63 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ event.title }}</title>
-</head>
-<body>
-    <h1>{{ event.title }}</h1>
-    <p>Event Code: {{ event.code }}</p>
+{% extends 'base.html' %}
+{% block title %}{{ event.title }} — LiteSlido{% endblock %}
 
-    <h2>Questions</h2>
-    <ul>
-        {% for question in questions %}
-            <li>{{ question.text }} (Asked at: {{ question.created_at }})</li>
+{% block content %}
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold mt-20">{{ event.title }}</h2>
+    <span class="text-gray-500">Code: {{ event.code }}</span>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-8">
+    <!-- Questions Column -->
+    <div>
+      <h3 class="text-xl font-semibold mb-4">Questions</h3>
+      <ul class="space-y-4">
+        {% for q in questions %}
+          <li class="bg-white p-4 rounded-lg shadow hover:shadow-md transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-medium text-gray-700">{{ q.author.username }}</span>
+              <span class="text-sm text-gray-500">{{ q.created_at|date:"M j, Y, g:i a" }}</span>
+            </div>
+            <p class="text-gray-800">{{ q.text }}</p>
+          </li>
         {% empty %}
-            <li>No questions yet.</li>
+          <li class="text-gray-500">No questions yet.</li>
         {% endfor %}
-    </ul>
+      </ul>
+      <a href="{% url 'add_question' event.code %}"
+         class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+        + Add Question
+      </a>
+    </div>
 
-    <h2>Polls</h2>
-    <ul>
+    <!-- Polls Column -->
+    <div>
+      <h3 class="text-xl font-semibold mb-4">Polls</h3>
+      <ul class="space-y-3">
         {% for poll in polls %}
-            <li>
-                <a href="{% url 'poll_detail' event_code=event.code poll_id=poll.id %}">
-                    {{ poll.question }}
-                </a>
-            </li>
+          <li class="bg-white p-4 rounded-lg shadow">
+            <a href="{% url 'poll_detail' event_code=event.code poll_id=poll.id %}"
+               class="block text-blue-600 hover:underline">
+              {{ poll.question }}
+            </a>
+          </li>
         {% empty %}
-            <li>No polls available yet.</li>
+          <li class="text-gray-500">No polls yet.</li>
         {% endfor %}
-    </ul>
+      </ul>
+      {% if request.user == event.creator %}
+        <a href="{% url 'add_poll' event.code %}"
+           class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+          + Create Poll
+        </a>
+      {% endif %}
+    </div>
+  </div>
 
-    <p>
-        <a href="{% url 'add_question' event.code %}">Add Question</a>
-        {% if request.user == event.creator %}
-            | <a href="{% url 'add_poll' event.code %}">Create Poll</a>
-        {% endif %}
-    </p>
-
-    <p><a href="{% url 'event_list' %}">Back to Event List</a></p>
-</body>
-</html>
+  <div class="mt-8">
+    <a href="{% url 'event_list' %}"
+       class="text-sm text-gray-600 hover:underline">
+      ← Back to My Events
+    </a>
+  </div>
+{% endblock %}
