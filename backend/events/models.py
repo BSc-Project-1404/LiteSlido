@@ -12,6 +12,7 @@ class Event(models.Model):
     title = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_events')
+    is_closed = models.BooleanField(default=False)   # ← New field
 
     def __str__(self):
         return f"{self.title} ({self.code})"
@@ -23,6 +24,10 @@ class Question(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questions')
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    likes = models.ManyToManyField(User, related_name='liked_questions', blank=True)
+
+    def like_count(self):
+        return self.likes.count()
 
     def __str__(self):
         return f"{self.author.username} @ {self.event.code}: {self.text[:20]}"

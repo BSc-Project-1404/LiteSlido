@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Event
-from .models import Poll
+from .models import Poll, Question
 from .forms import EventForm
 from .forms import QuestionForm
 from .models import Event
@@ -9,8 +9,9 @@ from .models import PollOption
 from django.contrib.auth.decorators import login_required
 from .models import PollVote 
 from django.contrib.auth.forms import UserCreationForm
-from django.http import HttpResponseForbidden
+from django.http import Http404, HttpResponseForbidden
 from django.contrib.auth import login, authenticate
+from django.http import HttpResponseRedirect
 
 
 @login_required
@@ -103,15 +104,30 @@ def add_poll(request, event_code):
     })
 
 
+from django.db.models import Count
+
 @login_required
 def event_detail(request, event_code):
     event = get_object_or_404(Event, code=event_code)
-    questions = event.questions.all()  # Get all questions for the event
-    polls = event.polls.all()  # Get all polls for the event
+
+    # If closed and not creator, show custom closed page with 404 status
+    if event.is_closed and request.user != event.creator:
+        return render(request, 'events/event_closed.html', {
+            'event': event
+        }, status=404)
+
+    # Annotate questions by like count, descending
+    questions = (
+        event.questions
+             .annotate(num_likes=Count('likes'))
+             .order_by('-num_likes', '-created_at')
+    )
+    polls = event.polls.all()
+
     return render(request, 'events/event_detail.html', {
         'event': event,
         'questions': questions,
-        'polls': polls
+        'polls': polls,
     })
 
 
@@ -180,3 +196,24 @@ def register(request):
         form = UserCreationForm()
 
     return render(request, 'registration/register.html', {'form': form})
+
+@login_required
+def toggle_like(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+    user = request.user
+
+    if user in question.likes.all():
+        question.likes.remove(user)
+    else:
+        question.likes.add(user)
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required
+def toggle_close(request, event_code):
+    event = get_object_or_404(Event, code=event_code)
+    if request.user != event.creator:
+        return HttpResponseForbidden("Only the creator can close or open this event.")
+    event.is_closed = not event.is_closed
+    event.save()
+    return redirect('event_detail', event_code=event.code)
