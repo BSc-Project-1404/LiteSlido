@@ -1,7 +1,7 @@
 # backend/events/admin.py
 
 from django.contrib import admin
-from .models import Event, Question, Poll, PollOption
+from .models import Event, Profile, Question, Poll, PollOption
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
@@ -22,3 +22,8 @@ class PollAdmin(admin.ModelAdmin):
 class PollOptionAdmin(admin.ModelAdmin):
     list_display = ('poll', 'text')
     search_fields = ('text',)
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'full_name', 'bio', 'avatar')
+    search_fields = ('full_name',)

@@ -11,7 +11,11 @@ from .models import PollVote
 from django.contrib.auth.forms import UserCreationForm
 from django.http import Http404, HttpResponseForbidden
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from .forms import ProfileForm
 from django.http import HttpResponseRedirect
+from django.contrib import messages
 
 
 @login_required
@@ -217,3 +221,45 @@ def toggle_close(request, event_code):
     event.is_closed = not event.is_closed
     event.save()
     return redirect('event_detail', event_code=event.code)
+
+@login_required
+def profile_view(request):
+    profile = request.user.profile
+    return render(request, 'events/profile.html', {'profile': profile})
+
+@login_required
+def profile_edit(request):
+    profile = request.user.profile
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = ProfileForm(instance=profile)
+    return render(request, 'events/profile_edit.html', {'form': form})
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # keep user logged in
+            return redirect('profile')
+    else:
+        form = PasswordChangeForm(user=request.user)
+    return render(request, 'events/change_password.html', {'form': form})
+
+@login_required
+def delete_question(request, event_code, question_id):
+    event = get_object_or_404(Event, code=event_code)
+    if request.user != event.creator:
+        return HttpResponseForbidden("Only the creator can delete questions.")
+    question = get_object_or_404(Question, id=question_id, event=event)
+    if request.method == 'POST':
+        question.delete()
+        messages.success(request, "Question deleted.")
+        return redirect('event_detail', event_code=event_code)
+    # If someone tries GET on this URL, redirect back
+    return redirect('event_detail', event_code=event_code)

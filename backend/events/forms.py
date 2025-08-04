@@ -1,5 +1,5 @@
 from django import forms
-from .models import Event, Question, Poll, PollOption
+from .models import Event, Question, Poll, PollOption, Profile
 
 class EventForm(forms.ModelForm):
     class Meta:
@@ -42,3 +42,12 @@ class PollOptionForm(forms.ModelForm):
             self.fields['text'].label = 'Option 2:'
         else:
             self.fields['text'].label = f'Option {int(option_number) + 1}:'
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['full_name', 'bio', 'avatar']
+        widgets = {
+            'full_name': forms.TextInput(attrs={'class': 'w-full border rounded px-3 py-2 focus:outline-none focus:ring'}),
+            'bio': forms.Textarea(attrs={'class': 'w-full border rounded px-3 py-2 focus:outline-none focus:ring', 'rows': 4}),
+        }

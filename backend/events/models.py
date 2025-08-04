@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from django.contrib.auth.models import User
+from PIL import Image
 
 
 def generate_event_code():
@@ -16,6 +17,22 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.code})"
+    
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    full_name = models.CharField(max_length=100, blank=True)
+    bio = models.TextField(blank=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Resize avatar to 300x300 max
+        if self.avatar:
+            img = Image.open(self.avatar.path)
+            img.thumbnail((300, 300))
+            img.save(self.avatar.path)
 
 
 
