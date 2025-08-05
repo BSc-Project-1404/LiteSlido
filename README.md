@@ -20,13 +20,9 @@
    * [Data Models](#data-models)
    * [API & Views](#api--views)
    * [Frontend Templates](#frontend-templates)
-   * [Styling & Dark Mode](#styling--dark-mode)
    * [Charting Results](#charting-results)
 9. [Docker & Deployment](#docker--deployment)
 10. [Testing](#testing)
-11. [Contributing](#contributing)
-12. [License](#license)
-
 ---
 
 ## Project Overview
