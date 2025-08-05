@@ -1,0 +1,43 @@
+{% extends 'base.html' %} {% block title %}My Profile — LiteSlido{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow mt-20">
+  <h2 class="text-2xl font-bold mb-4 text-center">My Profile</h2>
+  <div class="flex flex-col items-center space-y-4">
+    {% if profile.avatar %}
+    <img
+      src="{{ profile.avatar.url }}"
+      class="w-32 h-32 rounded-full object-cover"
+      alt="Avatar"
+    />
+    {% else %}
+    <div
+      class="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center text-gray-500"
+    >
+      No Avatar
+    </div>
+    {% endif %}
+    <p><strong>Username:</strong> {{ request.user.username }}</p>
+    <p><strong>Email:</strong> {{ request.user.email }}</p>
+    <p><strong>Full Name:</strong> {{ profile.full_name|default:"—" }}</p>
+    <p><strong>Bio:</strong> {{ profile.bio|default:"—" }}</p>
+    <p class="text-sm text-gray-500">
+      Joined {{ request.user.date_joined|date:"M j, Y" }}
+    </p>
+
+    <div class="flex space-x-4 mt-4">
+      <a
+        href="{% url 'profile_edit' %}"
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+      >
+        Edit Profile
+      </a>
+      <a
+        href="{% url 'change_password' %}"
+        class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition"
+      >
+        Change Password
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,14 +1,46 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Add Question to Event</title>
-  </head>
-  <body>
-    <h1>Add a Question to "{{ event.title }}"</h1>
-    <form method="POST">
-      {% csrf_token %} {{ form.as_p }}
-      <button type="submit">Submit Question</button>
+{# templates/events/add_question.html #}
+{% extends 'base.html' %}
+{% load form_tags %}
+{% block title %}Ask Question — LiteSlido{% endblock %}
+
+{% block content %}
+  <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow mt-20">
+    <h2 class="text-2xl font-bold mb-4">Ask a Question in "{{ event.title }}"</h2>
+
+    {# Non-field errors #}
+    {% if form.non_field_errors %}
+      <div class="mb-4 p-3 bg-red-100 text-red-800 rounded">
+        <ul class="list-disc list-inside">
+          {% for err in form.non_field_errors %}
+            <li>{{ err }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'add_question' event.code %}" class="space-y-4">
+      {% csrf_token %}
+
+      <!-- Question Field -->
+      <div>
+        <label for="id_text" class="block text-sm font-medium mb-1">Your Question</label>
+        {{ form.text|add_class:"w-full border rounded px-3 py-2 focus:outline-none focus:ring" }}
+        {% if form.text.errors %}
+          <p class="mt-1 text-sm text-red-600">{{ form.text.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit"
+              class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+        Submit Question
+      </button>
     </form>
-    <a href="{% url 'event_list' %}">Back to Event List</a>
-  </body>
-</html>
+
+    <div class="mt-4 text-center">
+      <a href="{% url 'event_detail' event.code %}" class="text-sm text-gray-600 hover:underline">
+        ← Back to Event
+      </a>
+    </div>
+  </div>
+{% endblock %}

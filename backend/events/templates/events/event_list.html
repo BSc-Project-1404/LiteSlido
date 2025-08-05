@@ -1,19 +1,52 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Event List</title>
-  </head>
-  <body>
-    <h1>Events</h1>
-    <ul>
-      {% for event in events %}
-      <li>
-        <a href="{% url 'event_detail' event.code %}"
-          >{{ event.title }} ({{ event.code }})</a
-        >
-      </li>
-      {% endfor %}
-    </ul>
-    <a href="{% url 'event_create' %}">Create New Event</a>
-  </body>
-</html>
+{% extends 'base.html' %}
+{% block title %}My Events — LiteSlido{% endblock %}
+
+{% block content %}
+  <h2 class="text-2xl font-bold mb-6 mt-20">My Events</h2>
+
+  <!-- Create Event & Profile Buttons -->
+  <div class="mb-4 flex space-x-2">
+    <a href="{% url 'event_create' %}"
+       class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+      + Create New Event
+    </a>
+    <a href="{% url 'profile' %}"
+       class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      My Profile
+    </a>
+  </div>
+
+  <!-- Events Grid -->
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for event in my_events %}
+      <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition">
+        <a href="{% url 'event_detail' event.code %}">
+          <h3 class="text-lg font-semibold">{{ event.title }}</h3>
+          <p class="text-sm text-gray-500 mt-1">Code: {{ event.code }}</p>
+        </a>
+      </div>
+    {% empty %}
+      <p class="text-gray-500">You haven’t created any events yet.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Join Event Form -->
+  <div class="mt-8 bg-white p-4 rounded-lg shadow">
+    <h3 class="text-xl font-semibold mb-2">Join an Event</h3>
+    {% if join_error %}
+      <p class="text-red-600 mb-2">{{ join_error }}</p>
+    {% endif %}
+    <form method="post" class="flex space-x-2">
+      {% csrf_token %}
+      <input name="event_code"
+             type="text"
+             placeholder="Enter event code"
+             class="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring"
+             required>
+      <button type="submit"
+              class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        Join
+      </button>
+    </form>
+  </div>
+{% endblock %}

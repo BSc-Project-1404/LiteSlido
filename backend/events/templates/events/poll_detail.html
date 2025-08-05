@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block title %}{{ poll.question }} — LiteSlido{% endblock %}
+
+{% block content %}
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold mt-20">{{ poll.question }}</h2>
+  </div>
+
+  {% if user_has_voted %}
+    <h3 class="text-xl font-semibold mb-4">Results</h3>
+
+    <!-- Chart Container -->
+    <div class="bg-white p-6 rounded-lg shadow mb-6">
+      <canvas id="resultsChart" class="w-full h-64" aria-label="Poll results chart"></canvas>
+    </div>
+
+    <!-- Fallback List of Results -->
+    <ul class="space-y-2">
+      {% for option, votes in option_votes_list %}
+        <li class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+          <span>{{ option.text }}</span>
+          <span class="font-medium">{{ votes }} vote{% if votes != 1 %}s{% endif %}</span>
+        </li>
+      {% endfor %}
+    </ul>
+
+  {% else %}
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {% for option, votes in option_votes_list %}
+        <div class="bg-white p-4 rounded-lg shadow flex items-center">
+          <input type="radio"
+                 name="poll_option"
+                 id="opt{{ option.id }}"
+                 value="{{ option.id }}"
+                 class="h-4 w-4 text-blue-600"
+                 required>
+          <label for="opt{{ option.id }}" class="ml-3">
+            {{ option.text }}
+          </label>
+        </div>
+      {% endfor %}
+      <button type="submit"
+              class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 mt-4">
+        Submit Vote
+      </button>
+    </form>
+  {% endif %}
+
+  <div class="mt-8">
+    <a href="{% url 'event_detail' event_code=event.code %}"
+       class="text-sm text-gray-600 hover:underline">
+      ← Back to Event
+    </a>
+  </div>
+{% endblock %}
+
+{% block extra_scripts %}
+  {% if user_has_voted %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const ctx = document
+          .getElementById('resultsChart')
+          .getContext('2d');
+
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: [
+              {% for option, votes in option_votes_list %}
+                "{{ option.text }}"{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            ],
+            datasets: [{
+              label: 'Votes',
+              data: [
+                {% for option, votes in option_votes_list %}
+                  {{ votes }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              ],
+              backgroundColor: [
+                'rgba(59, 130, 246, 0.7)',
+                'rgba(16, 185, 129, 0.7)',
+                'rgba(234, 179, 8, 0.7)',
+                'rgba(236, 72, 153, 0.7)',
+                // add more colors if you have more options
+              ],
+              borderColor: [
+                'rgba(59, 130, 246, 1)',
+                'rgba(16, 185, 129, 1)',
+                'rgba(234, 179, 8, 1)',
+                'rgba(236, 72, 153, 1)',
+              ],
+              borderWidth: 0,
+              borderRadius: 8,
+              barPercentage: 0.6,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                grid: {
+                  display: false
+                },
+                ticks: {
+                  color: '#374151',       // text-gray-700
+                  font: { family: 'Inter, sans-serif', size: 14 }
+                }
+              },
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: 'rgba(203, 213, 225, 0.3)' // gray-300 at 30%
+                },
+                ticks: {
+                  precision: 0,
+                  color: '#6B7280',       // text-gray-500
+                  font: { family: 'Inter, sans-serif', size: 12 }
+                }
+              }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: '#1F2937', // gray-800
+                titleColor: '#F9FAFB',       // gray-50
+                bodyColor: '#F9FAFB',
+                titleFont: { family: 'Inter, sans-serif' },
+                bodyFont: { family: 'Inter, sans-serif' },
+                padding: 8,
+                cornerRadius: 4
+              }
+            }
+          }
+        });
+      });
+    </script>
+  {% endif %}
+{% endblock %}

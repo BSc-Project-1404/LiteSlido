@@ -1,41 +1,119 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>{{ event.title }}</title>
-  </head>
-  <body>
-    <h1>{{ event.title }}</h1>
-    <p>Event Code: {{ event.code }}</p>
+{% extends 'base.html' %}
+{% block title %}{{ event.title }} — LiteSlido{% endblock %}
 
-    <h2>Questions</h2>
-    <ul>
-      {% for question in questions %}
-      <li>{{ question.text }} (Asked at: {{ question.created_at }})</li>
-      {% empty %}
-      <li>No questions yet.</li>
-      {% endfor %}
-    </ul>
+{% block content %}
+  <!-- Header with Close/Reopen for Creator -->
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold mt-20">{{ event.title }}</h2>
+    <div class="flex items-center space-x-4">
+      <span class="text-gray-500">Code: {{ event.code }}</span>
+      {% if request.user == event.creator %}
+        <form method="post" action="{% url 'toggle_close' event.code %}">
+          {% csrf_token %}
+          <button type="submit"
+                  class="px-3 py-1 rounded transition
+                         {% if event.is_closed %}
+                           bg-green-600 text-white hover:bg-green-700
+                         {% else %}
+                           bg-red-600 text-white hover:bg-red-700
+                         {% endif %}">
+            {% if event.is_closed %}Reopen Event{% else %}Close Event{% endif %}
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
 
-    <h2>Polls</h2>
-    <ul>
-      {% for poll in polls %}
-      <li>{{ poll.question }} (Created at: {{ poll.created_at }})</li>
-      <ul>
-        {% for option in poll.options.all %}
-        <li>{{ option.text }}</li>
+  <div class="grid md:grid-cols-2 gap-8">
+    <!-- Questions Column -->
+    <div>
+      <h3 class="text-xl font-semibold mb-4">Questions</h3>
+      <ul class="space-y-4">
+        {% for q in questions %}
+          <li class="relative bg-white p-4 rounded-lg shadow hover:shadow-md transition">
+            {# Delete button for the creator #}
+            {% if request.user == event.creator %}
+              <button data-question-id="{{ q.id }}"
+                      class="delete-btn absolute bottom-2 right-2 text-gray-400 hover:text-red-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 
+                           01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M8 7V4a1 1 0 
+                           011-1h6a1 1 0 011 1v3"/>
+                </svg>
+              </button>
+            {% endif %}
+
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-medium text-gray-700">{{ q.author.username }}</span>
+              <span class="text-sm text-gray-500">{{ q.created_at|date:"M j, Y, g:i a" }}</span>
+            </div>
+            <p class="text-gray-800 mb-3">{{ q.text }}</p>
+
+            {# Like/Unlike button #}
+            <form method="post" action="{% url 'toggle_like' q.id %}" class="inline">
+              {% csrf_token %}
+              <button type="submit"
+                      class="flex items-center space-x-1 text-gray-600 hover:text-red-600 transition">
+                {% if user in q.likes.all %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 fill-current text-red-600" viewBox="0 0 20 20">
+                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 
+                             4 0 115.656 5.656L10 18.343l-6.828-6.828a4 4 0 010-5.656z" />
+                  </svg>
+                {% else %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 stroke-current" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 
+                             4.5 0 116.364 6.364L12 21.364l-7.682-7.682a4.5 4.5 0 010-6.364z"/>
+                  </svg>
+                {% endif %}
+                <span>{{ q.num_likes }}</span>
+              </button>
+            </form>
+          </li>
         {% empty %}
-        <li>No options available yet.</li>
+          <li class="text-gray-500">No questions yet.</li>
         {% endfor %}
       </ul>
-      {% empty %}
-      <li>No polls available yet.</li>
-      {% endfor %}
-    </ul>
 
-    <a href="{% url 'add_question' event.code %}">Add Question</a> |
-    <a href="{% url 'add_poll' event.code %}">Create Poll</a>
+      {% if not event.is_closed %}
+        <a href="{% url 'add_question' event.code %}"
+           class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+          + Add Question
+        </a>
+      {% endif %}
+    </div>
 
-    <br />
-    <a href="{% url 'event_list' %}">Back to Event List</a>
-  </body>
-</html>
+    <!-- Polls Column -->
+    <div>
+      <h3 class="text-xl font-semibold mb-4">Polls</h3>
+      <ul class="space-y-3">
+        {% for poll in polls %}
+          <li class="bg-white p-4 rounded-lg shadow">
+            <a href="{% url 'poll_detail' event_code=event.code poll_id=poll.id %}"
+               class="block text-blue-600 hover:underline">
+              {{ poll.question }}
+            </a>
+          </li>
+        {% empty %}
+          <li class="text-gray-500">No polls yet.</li>
+        {% endfor %}
+      </ul>
+
+      {% if request.user == event.creator and not event.is_closed %}
+        <a href="{% url 'add_poll' event.code %}"
+           class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+          + Create Poll
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="mt-8">
+    <a href="{% url 'event_list' %}"
+       class="text-sm text-gray-600 hover:underline">
+      ← Back to My Events
+    </a>
+  </div>
+{% endblock %}

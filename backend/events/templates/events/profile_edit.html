@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load form_tags %}
+{% block title %}Edit Profile — LiteSlido{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow mt-20">
+  <h2 class="text-2xl font-bold mb-4 text-center">Edit Profile</h2>
+  <form method="post" enctype="multipart/form-data" class="space-y-4">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="p-3 bg-red-100 text-red-800 rounded">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+    <div>
+      <label for="id_full_name" class="block text-sm font-medium mb-1">Full Name</label>
+      {{ form.full_name }}
+      {% if form.full_name.errors %}
+        <p class="text-red-600 text-sm">{{ form.full_name.errors.0 }}</p>
+      {% endif %}
+    </div>
+    <div>
+      <label for="id_bio" class="block text-sm font-medium mb-1">Bio</label>
+      {{ form.bio }}
+      {% if form.bio.errors %}
+        <p class="text-red-600 text-sm">{{ form.bio.errors.0 }}</p>
+      {% endif %}
+    </div>
+    <div>
+      <label for="id_avatar" class="block text-sm font-medium mb-1">Avatar</label>
+      {{ form.avatar }}
+      {% if form.avatar.errors %}
+        <p class="text-red-600 text-sm">{{ form.avatar.errors.0 }}</p>
+      {% endif %}
+    </div>
+    <button type="submit"
+            class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+      Save Changes
+    </button>
+  </form>
+</div>
+{% endblock %}
