@@ -1,6 +1,5 @@
 {# templates/events/add_question.html #}
 {% extends 'base.html' %}
-{% load form_tags %}
 {% block title %}Ask Question — LiteSlido{% endblock %}
 
 {% block content %}
@@ -24,7 +23,7 @@
       <!-- Question Field -->
       <div>
         <label for="id_text" class="block text-sm font-medium mb-1">Your Question</label>
-        {{ form.text|add_class:"w-full border rounded px-3 py-2 focus:outline-none focus:ring" }}
+        {{ form.text }}
         {% if form.text.errors %}
           <p class="mt-1 text-sm text-red-600">{{ form.text.errors.0 }}</p>
         {% endif %}

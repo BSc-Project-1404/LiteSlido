@@ -1,54 +1,180 @@
 {% extends 'base.html' %}
-{% load form_tags %}
 
 {% block title %}Login — LiteSlido{% endblock %}
 
 {% block content %}
-  <div class="max-w-sm mx-auto bg-white p-6 rounded-lg shadow mt-20">
-    <h2 class="text-2xl font-bold mb-4">Login</h2>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <!-- Login Form -->
+      <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+            </svg>
+          </div>
+          <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+          <p class="text-gray-600">Sign in to your LiteSlido account</p>
+        </div>
 
-    {# Display non-field errors (e.g. “Please enter a correct username…” ) #}
-    {% if form.non_field_errors %}
-      <div class="mb-4 p-3 bg-red-100 text-red-800 rounded">
-        <ul class="list-disc list-inside">
-          {% for err in form.non_field_errors %}
-            <li>{{ err }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
-
-    <form method="post" class="space-y-4">
-      {% csrf_token %}
-
-      <!-- Username Field -->
-      <div>
-        <label for="id_username" class="block text-sm font-medium mb-1">Username</label>
-        {{ form.username|add_class:"w-full border rounded px-3 py-2 focus:outline-none focus:ring" }}
-        {% if form.username.errors %}
-          <p class="mt-1 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+        {% if form.non_field_errors %}
+          <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <ul class="text-sm text-red-700">
+              {% for err in form.non_field_errors %}
+                <li class="flex items-center">
+                  <svg class="w-4 h-4 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                  </svg>
+                  {{ err }}
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
         {% endif %}
+
+        <form method="post" class="space-y-6">
+          {% csrf_token %}
+
+          <!-- Username Field -->
+          <div>
+            <label for="{{ form.username.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+              Username
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              {{ form.username }}
+            </div>
+            {% if form.username.errors %}
+              <p class="mt-2 text-sm text-red-600 flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                {{ form.username.errors.0 }}
+              </p>
+            {% endif %}
+          </div>
+
+          <!-- Password Field -->
+          <div>
+            <label for="{{ form.password.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+              Password
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              {{ form.password }}
+            </div>
+            {% if form.password.errors %}
+              <p class="mt-2 text-sm text-red-600 flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                {{ form.password.errors.0 }}
+              </p>
+            {% endif %}
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-105 shadow-lg">
+            <span class="flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+              </svg>
+              Sign In
+            </span>
+          </button>
+        </form>
+
+        <div class="mt-8 text-center">
+          <p class="text-gray-600">
+            Don't have an account?
+            <a href="{% url 'register' %}" class="font-semibold text-blue-600 hover:text-blue-800 transition-colors duration-200 underline">
+              Create one here
+            </a>
+          </p>
+        </div>
       </div>
 
-      <!-- Password Field -->
-      <div>
-        <label for="id_password" class="block text-sm font-medium mb-1">Password</label>
-        {{ form.password|add_class:"w-full border rounded px-3 py-2 focus:outline-none focus:ring" }}
-        {% if form.password.errors %}
-          <p class="mt-1 text-sm text-red-600">{{ form.password.errors.0 }}</p>
-        {% endif %}
+      <!-- Anonymous Event Join Sidebar -->
+      <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">Join an Event</h3>
+          <p class="text-gray-600">Have an event code? Join without signing up!</p>
+        </div>
+
+        <form method="post" action="{% url 'anonymous_event_detail' 'placeholder' %}" class="space-y-4" id="anonymous-join-form">
+          {% csrf_token %}
+          <div>
+            <label for="event_code" class="block text-sm font-semibold text-gray-700 mb-2">
+              Event Code
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <input type="text" id="event_code" name="event_code" placeholder="Enter event code" class="pl-10 w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" required>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-105 shadow-lg">
+            <span class="flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+              </svg>
+              Join Event
+            </button>
+        </form>
+
+        <div class="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+          <h4 class="font-semibold text-green-800 mb-2">What you can do:</h4>
+          <ul class="text-sm text-green-700 space-y-1">
+            <li class="flex items-center">
+              <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              View event details and questions
+            </li>
+            <li class="flex items-center">
+              <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              Ask questions anonymously
+            </li>
+            <li class="flex items-center">
+              <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              View polls (read-only)
+            </li>
+          </ul>
+        </div>
       </div>
-
-      <!-- Submit Button -->
-      <button type="submit"
-              class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Log In
-      </button>
-    </form>
-
-    <p class="mt-4 text-center text-sm">
-      Don’t have an account?
-      <a href="{% url 'register' %}" class="text-blue-600 hover:underline">Register</a>
-    </p>
+    </div>
   </div>
+</div>
+
+<script>
+document.getElementById('anonymous-join-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const eventCode = document.getElementById('event_code').value.trim();
+  if (eventCode) {
+    window.location.href = `/events/anonymous/${eventCode}/`;
+  }
+});
+</script>
 {% endblock %}

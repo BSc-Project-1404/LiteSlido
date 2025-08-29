@@ -1,52 +1,264 @@
-{% extends 'base.html' %}
-{% block title %}My Events — LiteSlido{% endblock %}
-
+{% extends 'base.html' %} {% block title %}My Events — LiteSlido{% endblock %}
 {% block content %}
-  <h2 class="text-2xl font-bold mb-6 mt-20">My Events</h2>
+<div
+  class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8"
+>
+  <div class="max-w-7xl mx-auto">
+    <!-- Header Section -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">My Events</h1>
+      <p class="text-xl text-gray-600">
+        Manage and join your interactive events
+      </p>
+    </div>
 
-  <!-- Create Event & Profile Buttons -->
-  <div class="mb-4 flex space-x-2">
-    <a href="{% url 'event_create' %}"
-       class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-      + Create New Event
-    </a>
-    <a href="{% url 'profile' %}"
-       class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-      My Profile
-    </a>
-  </div>
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+      <a
+        href="{% url 'event_create' %}"
+        class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 hover:scale-105 shadow-lg font-semibold text-lg flex items-center justify-center"
+      >
+        <svg
+          class="w-6 h-6 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+          ></path>
+        </svg>
+        Create New Event
+      </a>
+      <a
+        href="{% url 'profile' %}"
+        class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 hover:scale-105 shadow-lg font-semibold text-lg flex items-center justify-center"
+      >
+        <svg
+          class="w-6 h-6 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+          ></path>
+        </svg>
+        My Profile
+      </a>
+    </div>
 
-  <!-- Events Grid -->
-  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% for event in my_events %}
-      <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition">
-        <a href="{% url 'event_detail' event.code %}">
-          <h3 class="text-lg font-semibold">{{ event.title }}</h3>
-          <p class="text-sm text-gray-500 mt-1">Code: {{ event.code }}</p>
-        </a>
+    <!-- Events Grid -->
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+      {% for event in my_events %}
+      <div
+        class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-105"
+      >
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div
+              class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center"
+            >
+              <svg
+                class="w-6 h-6 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                ></path>
+              </svg>
+            </div>
+            {% if event.is_closed %}
+            <span
+              class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full"
+            >
+              Closed
+            </span>
+            {% else %}
+            <span
+              class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full"
+            >
+              Active
+            </span>
+            {% endif %}
+          </div>
+          <a href="{% url 'event_detail' event.code %}" class="block">
+            <h3
+              class="text-xl font-bold text-gray-900 mb-2 hover:text-blue-600 transition-colors duration-200"
+            >
+              {{ event.title }}
+            </h3>
+            <div class="space-y-2">
+              <div class="flex items-center text-sm text-gray-600">
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                <span class="font-mono font-semibold">{{ event.code }}</span>
+              </div>
+              <div class="flex items-center text-sm text-gray-500">
+                <svg
+                  class="w-4 h-4 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                {{ event.created_at|date:"M j, Y" }}
+              </div>
+            </div>
+          </a>
+        </div>
       </div>
-    {% empty %}
-      <p class="text-gray-500">You haven’t created any events yet.</p>
-    {% endfor %}
-  </div>
+      {% empty %}
+      <div class="col-span-full">
+        <div class="text-center py-16">
+          <div
+            class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6"
+          >
+            <svg
+              class="w-12 h-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              ></path>
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">No events yet</h3>
+          <p class="text-gray-600 mb-6">
+            Create your first event to get started!
+          </p>
+          <a
+            href="{% url 'event_create' %}"
+            class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            <svg
+              class="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              ></path>
+            </svg>
+            Create Your First Event
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
 
-  <!-- Join Event Form -->
-  <div class="mt-8 bg-white p-4 rounded-lg shadow">
-    <h3 class="text-xl font-semibold mb-2">Join an Event</h3>
-    {% if join_error %}
-      <p class="text-red-600 mb-2">{{ join_error }}</p>
-    {% endif %}
-    <form method="post" class="flex space-x-2">
-      {% csrf_token %}
-      <input name="event_code"
-             type="text"
-             placeholder="Enter event code"
-             class="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring"
-             required>
-      <button type="submit"
-              class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Join
-      </button>
-    </form>
+    <!-- Join Event Section -->
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+      <div class="text-center mb-8">
+        <div
+          class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <svg
+            class="w-8 h-8 text-indigo-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            ></path>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">Join an Event</h3>
+        <p class="text-gray-600">Enter an event code to participate</p>
+      </div>
+
+      {% if join_error %}
+      <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div class="flex items-center">
+          <svg
+            class="w-5 h-5 text-red-500 mr-2"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd"
+            ></path>
+          </svg>
+          <span class="text-red-700 font-medium">{{ join_error }}</span>
+        </div>
+      </div>
+      {% endif %}
+
+      <form method="post" class="max-w-md mx-auto">
+        {% csrf_token %}
+        <div class="flex space-x-3">
+          <div class="flex-1 relative">
+            <div
+              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+            >
+              <svg
+                class="h-5 w-5 text-gray-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </div>
+            <input
+              name="event_code"
+              type="text"
+              placeholder="Enter event code"
+              class="pl-10 w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 hover:scale-105 shadow-lg font-semibold"
+          >
+            Join
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
+</div>
 {% endblock %}

@@ -17,5 +17,8 @@ urlpatterns = [
     path('<str:event_code>/question/<int:question_id>/delete/', 
      views.delete_question, 
      name='delete_question'),
-
+    
+    # Anonymous user URLs
+    path('anonymous/<str:event_code>/', views.anonymous_event_detail, name='anonymous_event_detail'),
+    path('anonymous/<str:event_code>/add_question/', views.anonymous_add_question, name='anonymous_add_question'),
 ]

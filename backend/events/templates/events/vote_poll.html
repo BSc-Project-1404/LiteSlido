@@ -1,66 +1,61 @@
 {% extends 'base.html' %}
-{% load form_tags %}
 {% block title %}Vote — LiteSlido{% endblock %}
 
 {% block content %}
-  <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow">
-    <h2 class="text-2xl font-bold mb-4 mt-20">{{ poll.question }}</h2>
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ poll.question }}</h1>
+      <p class="text-gray-600">Event: <span class="font-semibold">{{ event.title }}</span></p>
+    </div>
 
-    <form method="post" class="space-y-4">
-      {% csrf_token %}
-      {% for option in options %}
-      <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded">
-        <input type="radio" name="poll_option" id="opt{{ option.id }}"
-               value="{{ option.id }}" class="h-4 w-4 text-blue-600" required>
-        <label for="opt{{ option.id }}" class="flex-1">
-          {{ option.text }}
-        </label>
-      </div>
-      {% endfor %}
+    <!-- Voting Form -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Cast Your Vote</h2>
 
-      <button type="submit"{% extends 'base.html' %}
-{% block title %}Vote — LiteSlido{% endblock %}
-
-{% block content %}
-  <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow mt-20">
-    <h2 class="text-2xl font-bold mb-4">{{ poll.question }}</h2>
-
-    {# Display any error passed from the view #}
-    {% if vote_error %}
-      <div class="mb-4 p-3 bg-red-100 text-red-800 rounded">
-        {{ vote_error }}
-      </div>
-    {% endif %}
-
-    <form method="post" class="space-y-4">
-      {% csrf_token %}
-      {% for option in options %}
-        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded">
-          <input
-            type="radio"
-            name="poll_option"
-            id="opt{{ option.id }}"
-            value="{{ option.id }}"
-            class="h-4 w-4 text-blue-600"
-            required>
-          <label for="opt{{ option.id }}" class="flex-1">
-            {{ option.text }}
-          </label>
+      {# Display any error passed from the view #}
+      {% if vote_error %}
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {{ vote_error }}
+          </div>
         </div>
-      {% endfor %}
+      {% endif %}
 
-      <button
-        type="submit"
-        class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-        Submit Vote
-      </button>
-    </form>
-  </div>
-{% endblock %}
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {% for option in options %}
+          <div class="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 cursor-pointer group">
+            <input type="radio"
+                   name="poll_option"
+                   id="opt{{ option.id }}"
+                   value="{{ option.id }}"
+                   class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 cursor-pointer"
+                   required>
+            <label for="opt{{ option.id }}" class="ml-3 flex-1 cursor-pointer group-hover:text-blue-700">
+              <span class="text-gray-800 font-medium text-lg">{{ option.text }}</span>
+            </label>
+          </div>
+        {% endfor %}
 
-              class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Submit Vote
-      </button>
-    </form>
+        <button type="submit"
+                class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium text-lg mt-6">
+          Submit Vote
+        </button>
+      </form>
+    </div>
+
+    <!-- Navigation -->
+    <div class="mt-8 text-center">
+      <a href="{% url 'event_detail' event_code=event.code %}"
+         class="text-sm text-gray-600 hover:text-gray-800 hover:underline transition-colors duration-200">
+        ← Back to Event
+      </a>
+    </div>
   </div>
+</div>
 {% endblock %}
