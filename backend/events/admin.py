@@ -10,8 +10,9 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('event', 'text', 'created_at')
-    search_fields = ('text',)
+    list_display = ('event', 'text', 'author', 'author_name', 'created_at')
+    search_fields = ('text', 'author_name')
+    list_filter = ('event', 'created_at')
 
 @admin.register(Poll)
 class PollAdmin(admin.ModelAdmin):
