@@ -1,0 +1,56 @@
+# Django Templates - NEVER format these with Prettier
+*.html
+**/*.html
+backend/**/templates/**/*.html
+backend/events/templates/**/*.html
+backend/core/templates/**/*.html
+
+# Python files
+*.py
+**/*.py
+
+# Django specific files
+*.djhtml
+*.django
+
+# Configuration files
+*.sql
+*.md
+*.txt
+*.yml
+*.yaml
+*.json
+*.xml
+*.toml
+*.ini
+*.cfg
+
+# Build and dependency directories
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

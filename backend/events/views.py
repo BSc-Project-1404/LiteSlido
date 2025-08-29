@@ -12,10 +12,31 @@ from django.contrib.auth.forms import UserCreationForm
 from django.http import Http404, HttpResponseForbidden
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import update_session_auth_hash, authenticate, login
 from .forms import ProfileForm
 from django.http import HttpResponseRedirect
-from django.contrib import messages
+from django.contrib.auth.forms import AuthenticationForm
+from .services import get_event_list_data, create_event, add_question_to_event, add_poll_to_event, get_event_detail_data, vote_for_poll, get_poll_detail_data, register_user, toggle_question_like, toggle_event_close_status, get_user_profile, edit_user_profile, change_user_password, delete_event_question, get_anonymous_event_data, add_anonymous_question_to_event
+from .forms import StyledAuthenticationForm, StyledUserCreationForm
+
+def custom_login(request):
+    """Custom login view that provides proper form context"""
+    if request.user.is_authenticated:
+        return redirect('event_list')
+    
+    if request.method == 'POST':
+        form = StyledAuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('event_list')
+    else:
+        form = StyledAuthenticationForm()
+    
+    return render(request, 'registration/login.html', {'form': form})
 
 
 @login_required
@@ -263,3 +284,20 @@ def delete_question(request, event_code, question_id):
         return redirect('event_detail', event_code=event_code)
     # If someone tries GET on this URL, redirect back
     return redirect('event_detail', event_code=event_code)
+
+def anonymous_event_detail(request, event_code):
+    """View for anonymous users to view events and ask questions"""
+    data = get_anonymous_event_data(request, event_code)
+    if 'render' in data:
+        view_name, context, status = data['render']
+        return render(request, view_name, context, status=status)
+    return render(request, 'events/anonymous_event_detail.html', data)
+
+
+def anonymous_add_question(request, event_code):
+    """View for anonymous users to add questions to events"""
+    data = add_anonymous_question_to_event(request, event_code)
+    if 'redirect' in data:
+        view_name, kwargs = data['redirect']
+        return redirect(view_name, **kwargs)
+    return render(request, 'events/anonymous_add_question.html', data)

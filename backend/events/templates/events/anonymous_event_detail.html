@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}{{ event.title }} - Anonymous View{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ event.title }}</h1>
+    <div class="flex items-center space-x-2 mb-4">
+      <span class="text-gray-600">Event Code:</span>
+      <div class="flex items-center space-x-2">
+        <span class="font-mono bg-gray-100 px-3 py-2 rounded text-sm">{{ event.code }}</span>
+        <button 
+          onclick="copyToClipboard('{{ event.code }}')"
+          class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
+          title="Copy event code to clipboard">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <p class="text-gray-600">Created: {{ event.created_at|date:"F j, Y" }}</p>
+
+    {% if event.is_closed %}
+    <div
+      class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4"
+    >
+      This event is closed.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Questions Section -->
+  <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-bold text-gray-800">Questions</h2>
+      <a
+        href="{% url 'anonymous_add_question' event.code %}"
+        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+      >
+        Ask a Question
+      </a>
+    </div>
+
+    {% if questions %}
+    <div class="space-y-4">
+      {% for question in questions %}
+      <div class="border border-gray-200 rounded-lg p-4 {% if question.is_anonymous %}bg-gray-50{% endif %}">
+        <div class="flex justify-between items-start">
+          <div class="flex-1">
+            <p class="text-gray-800 mb-2">{{ question.text }}</p>
+            <div class="flex items-center justify-between text-sm text-gray-500">
+              <div class="flex items-center space-x-3">
+                <span class="font-medium text-gray-700">{{ question.get_author_display }}</span>
+                <span>{{ question.created_at|date:"M j, Y g:i A" }}</span>
+              </div>
+              <!-- Like count display for anonymous users -->
+              {% if question.likes.count > 0 %}
+                <div class="flex items-center space-x-1 text-sm text-gray-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 18.343l-6.828-6.828a4 4 0 010-5.656z" />
+                  </svg>
+                  <span class="font-medium text-gray-600">{{ question.likes.count }}</span>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-500 text-center py-8">
+      No questions yet. Be the first to ask!
+    </p>
+    {% endif %}
+  </div>
+
+
+
+  <!-- Login/Register Section -->
+  <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
+    <h3 class="text-lg font-semibold text-blue-800 mb-2">Want to do more?</h3>
+    <p class="text-blue-700 mb-4">
+      Login or register to like questions, vote in polls, and create your own
+      events!
+    </p>
+    <div class="flex space-x-4">
+      <a
+        href="{% url 'login' %}"
+        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+      >
+        Login
+      </a>
+      <a
+        href="{% url 'register' %}"
+        class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+      >
+        Register
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyToClipboard(text) {
+  // Try to use the modern clipboard API first
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => {
+      showCopyFeedback();
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+      fallbackCopyToClipboard(text);
+    });
+  } else {
+    // Fallback for older browsers
+    fallbackCopyToClipboard(text);
+  }
+}
+
+function fallbackCopyToClipboard(text) {
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.style.position = 'fixed';
+  textArea.style.left = '-999999px';
+  textArea.style.top = '-999999px';
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  
+  try {
+    document.execCommand('copy');
+    showCopyFeedback();
+  } catch (err) {
+    console.error('Fallback copy failed: ', err);
+  }
+  
+  document.body.removeChild(textArea);
+}
+
+function showCopyFeedback() {
+  // Find the copy button and show feedback
+  const copyButton = document.querySelector('button[onclick*="copyToClipboard"]');
+  if (copyButton) {
+    const originalHTML = copyButton.innerHTML;
+    const originalClasses = copyButton.className;
+    
+    // Change to checkmark temporarily
+    copyButton.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+    `;
+    copyButton.className = originalClasses.replace('text-gray-500', 'text-green-600').replace('hover:text-blue-600', 'hover:text-green-700');
+    
+    // Reset after 2 seconds
+    setTimeout(() => {
+      copyButton.innerHTML = originalHTML;
+      copyButton.className = originalClasses;
+    }, 2000);
+  }
+}
+</script>
+{% endblock %}
