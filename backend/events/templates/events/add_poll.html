@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load form_tags %}
 {% block title %}Create Poll — LiteSlido{% endblock %}
 
 {% block content %}
@@ -25,7 +24,7 @@
         <label for="id_question" class="block text-sm font-medium mb-1">
           Poll Question
         </label>
-        {{ form.question|add_class:"w-full border rounded px-3 py-2 focus:outline-none focus:ring" }}
+        {{ form.question }}
         {% if form.question.errors %}
           <p class="mt-1 text-sm text-red-600">{{ form.question.errors.0 }}</p>
         {% endif %}

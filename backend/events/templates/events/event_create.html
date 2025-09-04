@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load form_tags %}
 {% block title %}Create Event — LiteSlido{% endblock %}
 
 {% block content %}
@@ -23,7 +22,7 @@
       <!-- Title Field -->
       <div>
         <label for="id_title" class="block text-sm font-medium mb-1">Event Title</label>
-        {{ form.title|add_class:"w-full border rounded px-3 py-2 focus:outline-none focus:ring" }}
+        {{ form.title }}
         {% if form.title.errors %}
           <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
         {% endif %}

@@ -39,7 +39,8 @@ class Profile(models.Model):
 
 class Question(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='questions')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questions')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questions', null=True, blank=True)
+    author_name = models.CharField(max_length=150, blank=True)  # For anonymous questions
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, related_name='liked_questions', blank=True)
@@ -47,8 +48,19 @@ class Question(models.Model):
     def like_count(self):
         return self.likes.count()
 
+    def get_author_display(self):
+        """Return the author name to display"""
+        if self.author:
+            return self.author.username
+        return self.author_name if self.author_name else "Anonymous"
+
+    def is_anonymous(self):
+        """Check if this is an anonymous question"""
+        return self.author is None
+
     def __str__(self):
-        return f"{self.author.username} @ {self.event.code}: {self.text[:20]}"
+        author_display = self.get_author_display()
+        return f"{author_display} @ {self.event.code}: {self.text[:20]}"
 
 
 class Poll(models.Model):
