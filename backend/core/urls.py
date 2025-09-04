@@ -1,7 +1,7 @@
 # core/urls.py
 from django.contrib import admin
 from django.urls import path, include
-from events.views import register, custom_login
+from events.views.auth_views import register, custom_login
 from django.contrib.auth import views as auth_views
 from django.conf.urls.static import static
 from django.conf import settings
