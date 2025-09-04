@@ -13,7 +13,7 @@
           <div class="flex items-center space-x-2">
             <span class="font-mono bg-gray-100 px-3 py-2 rounded text-sm">{{ event.code }}</span>
             <button 
-              onclick="copyToClipboard('{{ event.code }}')"
+              onclick="copyToClipboard('{{ event.code }}', this)"
               class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
               title="Copy event code to clipboard">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -39,6 +39,52 @@
       </div>
     </div>
     <p class="text-gray-600 mt-2">Created: {{ event.created_at|date:"F j, Y" }}</p>
+  </div>
+
+  <!-- QR Code Section -->
+  <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl font-bold text-gray-800">Event Invitation</h2>
+      <button 
+        onclick="copyToClipboard('{{ event_url }}', this)"
+        class="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200"
+        title="Copy event URL to clipboard">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+        <span>Copy Link</span>
+      </button>
+    </div>
+    
+    <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
+      <!-- QR Code -->
+      <div class="flex flex-col items-center">
+        <div class="bg-white p-4 rounded-lg border-2 border-gray-200 shadow-sm">
+          <img src="data:image/png;base64,{{ qr_code_data }}" 
+               alt="QR Code for {{ event.title }}" 
+               class="w-48 h-48">
+        </div>
+        <p class="text-sm text-gray-600 mt-2 text-center">Scan to join event</p>
+      </div>
+      
+      <!-- Event Info -->
+      <div class="flex flex-col space-y-3 text-center md:text-left">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800">{{ event.title }}</h3>
+          <p class="text-gray-600">Event Code: <span class="font-mono font-semibold">{{ event.code }}</span></p>
+        </div>
+        
+        <div class="text-sm text-gray-500">
+          <p>Share this QR code or link to invite others to your event.</p>
+          <p class="mt-1">Participants can scan the QR code or visit the link to join.</p>
+        </div>
+        
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="text-xs text-gray-600 mb-1">Event URL:</p>
+          <p class="text-sm font-mono text-blue-600 break-all">{{ event_url }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="grid md:grid-cols-2 gap-8">
@@ -163,22 +209,22 @@
 </div>
 
 <script>
-function copyToClipboard(text) {
+function copyToClipboard(text, button) {
   // Try to use the modern clipboard API first
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(text).then(() => {
-      showCopyFeedback();
+      showCopyFeedback(button);
     }).catch(err => {
       console.error('Failed to copy: ', err);
-      fallbackCopyToClipboard(text);
+      fallbackCopyToClipboard(text, button);
     });
   } else {
     // Fallback for older browsers
-    fallbackCopyToClipboard(text);
+    fallbackCopyToClipboard(text, button);
   }
 }
 
-function fallbackCopyToClipboard(text) {
+function fallbackCopyToClipboard(text, button) {
   const textArea = document.createElement('textarea');
   textArea.value = text;
   textArea.style.position = 'fixed';
@@ -190,7 +236,7 @@ function fallbackCopyToClipboard(text) {
   
   try {
     document.execCommand('copy');
-    showCopyFeedback();
+    showCopyFeedback(button);
   } catch (err) {
     console.error('Fallback copy failed: ', err);
   }
@@ -198,25 +244,23 @@ function fallbackCopyToClipboard(text) {
   document.body.removeChild(textArea);
 }
 
-function showCopyFeedback() {
-  // Find the copy button and show feedback
-  const copyButton = document.querySelector('button[onclick*="copyToClipboard"]');
-  if (copyButton) {
-    const originalHTML = copyButton.innerHTML;
-    const originalClasses = copyButton.className;
+function showCopyFeedback(button) {
+  if (button) {
+    const originalHTML = button.innerHTML;
+    const originalClasses = button.className;
     
     // Change to checkmark temporarily
-    copyButton.innerHTML = `
+    button.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
       </svg>
     `;
-    copyButton.className = originalClasses.replace('text-gray-500', 'text-green-600').replace('hover:text-blue-600', 'hover:text-green-700');
+    button.className = originalClasses.replace('text-gray-500', 'text-green-600').replace('hover:text-blue-600', 'hover:text-green-700');
     
     // Reset after 2 seconds
     setTimeout(() => {
-      copyButton.innerHTML = originalHTML;
-      copyButton.className = originalClasses;
+      button.innerHTML = originalHTML;
+      button.className = originalClasses;
     }, 2000);
   }
 }
