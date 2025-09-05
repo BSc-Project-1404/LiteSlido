@@ -40,7 +40,7 @@ class Profile(models.Model):
 class Question(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='questions')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questions', null=True, blank=True)
-    author_name = models.CharField(max_length=150, blank=True)  # For anonymous questions
+    author_name = models.CharField(max_length=150, blank=True, null=True)  # For anonymous questions
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, related_name='liked_questions', blank=True)
