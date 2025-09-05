@@ -11,6 +11,7 @@ from ..services import (
     can_user_view_event, get_event_questions, get_event_polls,
     can_anonymous_view_event
 )
+from ..services.qr_services import generate_qr_code
 
 
 @login_required
@@ -66,11 +67,16 @@ def event_detail(request, event_code):
     # Use services to get data
     questions = get_event_questions(event)
     polls = get_event_polls(event)
+    
+    # Generate QR code for the event
+    qr_code_data, event_url = generate_qr_code(event.code)
 
     return render(request, 'events/event_detail.html', {
         'event': event,
         'questions': questions,
         'polls': polls,
+        'qr_code_data': qr_code_data,
+        'event_url': event_url,
     })
 
 
@@ -100,9 +106,14 @@ def anonymous_event_detail(request, event_code):
     questions = get_event_questions(event)
     polls = get_event_polls(event)
     
+    # Generate QR code for the event
+    qr_code_data, event_url = generate_qr_code(event.code)
+    
     return render(request, 'events/anonymous_event_detail.html', {
         'event': event,
         'questions': questions,
         'polls': polls,
         'is_anonymous': True,
+        'qr_code_data': qr_code_data,
+        'event_url': event_url,
     })
