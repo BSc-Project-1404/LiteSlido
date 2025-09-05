@@ -19,6 +19,9 @@ urlpatterns = [
     path('anonymous/<str:event_code>/', event_views.anonymous_event_detail, name='anonymous_event_detail'),
     path('anonymous/<str:event_code>/add_question/', question_views.anonymous_add_question, name='anonymous_add_question'),
     
+    # Smart redirect URL (for QR codes - must come before generic event_code patterns)
+    path('join/<str:event_code>/', event_views.smart_event_redirect, name='smart_event_redirect'),
+    
     # Generic event_code patterns (must come last)
     path('<str:event_code>/', event_views.event_detail, name='event_detail'),
     path('<str:event_code>/toggle_close/', event_views.toggle_close, name='toggle_close'),

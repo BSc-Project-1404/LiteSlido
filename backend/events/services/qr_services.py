@@ -11,8 +11,8 @@ def generate_qr_code(event_code):
     Generate a QR code for the event invitation.
     Returns a base64 encoded image string and the event URL.
     """
-    # Build the full URL for the event with the specific server IP
-    event_url = f"http://37.32.13.114:8000/events/{event_code}/"
+    # Build the full URL for the smart redirect (works for both logged-in and anonymous users)
+    event_url = f"http://37.32.13.114:8000/events/join/{event_code}/"
     
     # Create QR code
     qr = qrcode.QRCode(

@@ -93,6 +93,24 @@ def toggle_close(request, event_code):
     return redirect('event_detail', event_code=event.code)
 
 
+def smart_event_redirect(request, event_code):
+    """
+    Smart redirect view that automatically redirects users to the appropriate view
+    based on their authentication status.
+    - Logged-in users -> event_detail (authenticated view)
+    - Anonymous users -> anonymous_event_detail (anonymous view)
+    """
+    event = get_object_or_404(Event, code=event_code)
+    
+    # Check if user is authenticated
+    if request.user.is_authenticated:
+        # Redirect to authenticated event detail view
+        return redirect('event_detail', event_code=event_code)
+    else:
+        # Redirect to anonymous event detail view
+        return redirect('anonymous_event_detail', event_code=event_code)
+
+
 def anonymous_event_detail(request, event_code):
     """View for anonymous users to view events and ask questions"""
     event = get_object_or_404(Event, code=event_code)
