@@ -9,6 +9,17 @@ urlpatterns = [
     # Event views
     path('', event_views.event_list, name='event_list'),
     path('create/', event_views.event_create, name='event_create'),
+    
+    # Profile views (must come before generic event_code patterns)
+    path('profile/', profile_views.profile_view, name='profile'),
+    path('profile/edit/', profile_views.profile_edit, name='profile_edit'),
+    path('profile/change-password/', profile_views.change_password, name='change_password'),
+    
+    # Anonymous user URLs (must come before generic event_code patterns)
+    path('anonymous/<str:event_code>/', event_views.anonymous_event_detail, name='anonymous_event_detail'),
+    path('anonymous/<str:event_code>/add_question/', question_views.anonymous_add_question, name='anonymous_add_question'),
+    
+    # Generic event_code patterns (must come last)
     path('<str:event_code>/', event_views.event_detail, name='event_detail'),
     path('<str:event_code>/toggle_close/', event_views.toggle_close, name='toggle_close'),
     
@@ -22,13 +33,4 @@ urlpatterns = [
     path('<str:event_code>/add_poll/', poll_views.add_poll, name='add_poll'),
     path('<str:event_code>/poll/<int:poll_id>/', poll_views.poll_detail, name='poll_detail'),
     path('<str:event_code>/poll/<int:poll_id>/vote/', poll_views.vote_poll, name='vote_poll'),
-    
-    # Profile views
-    path('profile/', profile_views.profile_view, name='profile'),
-    path('profile/edit/', profile_views.profile_edit, name='profile_edit'),
-    path('profile/change-password/', profile_views.change_password, name='change_password'),
-    
-    # Anonymous user URLs
-    path('anonymous/<str:event_code>/', event_views.anonymous_event_detail, name='anonymous_event_detail'),
-    path('anonymous/<str:event_code>/add_question/', question_views.anonymous_add_question, name='anonymous_add_question'),
 ]
